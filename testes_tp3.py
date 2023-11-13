@@ -10,5 +10,4 @@ with open('grafo_teste.txt', 'r') as arquivo:  #mudar o número do grafo de acor
             arestas += [[int(texto[3*i+1])]+[int(texto[3*i+2])]+ [float(texto[3*i+3])]] 
 
 grafo = Graph_l(vertices, arestas)
-
 print(grafo.mostra_lista())
