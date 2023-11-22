@@ -125,7 +125,8 @@ class Graph_l:
         
                
         if disco:
-            self.guarda_resultado(grafo)                    
+            self.guarda_resultado(grafo)  
+                
         return self.fluxoMax
    
 
