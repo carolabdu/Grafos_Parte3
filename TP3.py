@@ -36,7 +36,7 @@ class Graph_l:
                 c= self.a[i][2]
                 original = Aresta(u, v, c, 0, False)
                 reversa = Aresta(u, v, c, 0, True)
-                self.lista[u-1].append(Aresta(u, v, c, 0, False))
+                self.lista[u-1].append(original)
                 self.lista_residual[u-1].append(original)
                 self.lista_residual[v-1].append(reversa)
                 reversa.opointer= original
@@ -106,8 +106,8 @@ class Graph_l:
         arquivo_saida = open(f'resultado_{grafo}.txt', 'w')
         arquivo_saida.write(f'Fluxo máximo entre os vértices 1 e 2: {self.fluxoMax}\n')
         arquivo_saida.write('Alocação de fluxo:\n')
-        for vertice in range(len(self.lista_residual)):
-            for aresta in self.lista_residual[vertice]:
+        for vertice in range(len(self.lista)):
+            for aresta in self.lista[vertice]:
                 arquivo_saida.write(f'{aresta.v1} {aresta.v2} {aresta.fluxo}\n' )
         arquivo_saida.close
 
