@@ -3,6 +3,9 @@ from queue import *
 from classAresta import *
     
 
+
+    
+
 class Graph_l:   
     def __init__(self, v, a, d): #(número de vértices, arestas, direcionado(bool))
         #self.arquivo_saida = [] #Lista que vai receber os resultados desejados
@@ -31,10 +34,14 @@ class Graph_l:
                 u=self.a[i][0] #Pega o primeiro vértice do par de arestas
                 v= self.a[i][1] #Pega o segundo vértice do par de arestas
                 c= self.a[i][2]
+                original = Aresta(u, v, c, 0, False)
+                reversa = Aresta(u, v, c, 0, True)
                 self.lista[u-1].append(Aresta(u, v, c, 0, False))
-                self.lista_residual[u-1].append(Aresta(u, v, c, 0, False))
-                self.lista_residual[v-1].append(Aresta(v, u, c, 0, True))
-                if c < 0: self.neg = True
+                self.lista_residual[u-1].append(original)
+                self.lista_residual[v-1].append(reversa)
+                reversa.opointer= original
+                original.rpointer = reversa
+
 
 
     def mostra_lista(self): #Retorna a lista de adjacência
@@ -43,32 +50,36 @@ class Graph_l:
 
     def BFS_ff(self, vi):
         marcados = np.zeros(self.v,dtype=int) #Lista com os nós que já foram explorados
-        self.Q = Queue() #Cria uma fila vazia
+        Q = Queue() #Cria uma fila vazia
         pai = np.array([-1] * self.v, dtype = int) #inicia vetor com os pais
         nivel = np.array([-1] * self.v, dtype = int) #inicia vetor dos níveis
         nivel[vi -1] = 0
         marcados[vi-1]=1#Marca vi, que é o nó em que começamos a busca
-        self.Q.add(vi) #Adciona o nó na fila
+        Q.add(vi) #Adciona o nó na fila
         pai[vi-1] = 0 #Indica que é raiz 
-        while self.Q.is_empty() == False: #A busca continua até a lista ficar vazia(Até todos os vértices serem explorados)
-            v = self.Q.pop() #Remove o último vértice da fila, que corresponde ao vértice mais antigo
-            for w in self.lista_residual[v-1]: #Visita os vizinhos de v
+        while Q.is_empty() == False : #A busca continua até a lista ficar vazia(Até todos os vértices serem explorados)
+            v = Q.pop() #Remove o último vértice da fila, que corresponde ao vértice mais antigo
+            for w in self.lista_residual[v-1] : #Visita os vizinhos de v
                 #if w.cap_residual == 0.0 and w.residual == False: pass
-                if w.residual == True: pass
-                else:
-                    if marcados[w.v2-1]==0: 
-                        pai[w.v2-1]= v #Se w não tiver sido marcado, o vértice que o descobriu(seu pai) foi v
-                        marcados[w.v2-1]=1 #Marca w se não foi descoberto ainda
-                        self.Q.add(w.v2) #Adiciona w na primeira poição da fila
+                if marcados[w.v2-1]==0 and w.cap_residual>0: 
+                    pai[w.v2-1]= v #Se w não tiver sido marcado, o vértice que o descobriu(seu pai) foi v
+                    marcados[w.v2-1]=1 #Marca w se não foi descoberto ainda
+                    Q.add(w.v2) #Adiciona w na primeira poição da fila
         return pai
     
     def get_gargalo(self, caminho):
         gargalo = np.inf
-        for v in caminho:
-            for viz in self.lista_residual[v-1]:
-                if viz.v2 in caminho and viz.residual == False:
+        t = len(caminho)
+        for i in range (t-1):
+            v_1= caminho[i]
+            v_2 = caminho[i+1]
+            for viz in self.lista_residual[v_2-1]: 
+                if (viz.v2 ==v_1) and viz.residual is False:
+                    #print(viz.v1,viz.v2, viz.cap_residual, viz.residual)
                     if viz.cap_residual < gargalo:
                          gargalo = viz.cap_residual
+        #print(caminho)
+        #print(gargalo)
         return gargalo    
     
     def get_caminho(self, s, t):
@@ -89,8 +100,6 @@ class Graph_l:
                 if (aresta.v1 and aresta.v2) in caminho:
                     aresta.atualiza_arestas(gargalo)
                     #print(f'capacidade {aresta.v1} e {aresta.v2} :{aresta.cap_residual}')
-                    if aresta.cap_residual == 0.0: 
-                        self.lista_residual[vertice-1].remove(aresta)
         return gargalo
     
     def guarda_resultado(self, grafo: str):
@@ -113,7 +122,8 @@ class Graph_l:
             for aresta in self.lista_residual[v-1]:
                 if aresta.residual == True:
                     self.lista_residual[v-1].remove(aresta)
+        
+               
         if disco:
             self.guarda_resultado(grafo)                    
         return self.fluxoMax
-
