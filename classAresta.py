@@ -9,10 +9,13 @@ class Aresta:
             self.cap_residual = self.fluxo
         else:
             self.cap_residual = self.cap - self.fluxo
-    
+          
+        self.opointer = None
+        self.rpointer = None
     def atualiza_arestas(self, gargalo):
         self.fluxo += gargalo
         if self.residual == True:
             self.cap_residual = self.fluxo
         else:
             self.cap_residual = self.cap - self.fluxo
+            self.rpointer.atualiza_arestas(gargalo)
